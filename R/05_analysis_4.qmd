@@ -17,7 +17,7 @@ library("broom")
 ## Load data
 
 ```{r}
-data <- read_csv("../_raw/data/clean_sample_expression.csv")
+data <- read_csv("_processed/expression_with_metadata.csv")
 ```
 
 ## Small test - applying linear model to one gene
