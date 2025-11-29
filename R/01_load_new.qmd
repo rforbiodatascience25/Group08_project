@@ -125,10 +125,10 @@ sample_metadata <- bind_rows(meta_5620, meta_5621)
 
 ```{r}
 # Create "_processed" inside the current project folder if it doesn't exist (it wont crush if you rerun the code)
-if (!dir.exists("_processed")) dir.create("_processed")
+if (!dir.exists("../_raw/_processed")) dir.create("../_raw/_processed")
 
 # Save the clean metadata inside that folder
-write_csv(sample_metadata, "_processed/sample_metadata.csv")
+write_csv(sample_metadata, "../_raw/_processed/sample_metadata.csv")
 
 ```
 
@@ -169,7 +169,7 @@ probe_to_gene <- dplyr::distinct(probe_to_gene, probeid, .keep_all = TRUE)
 # 4. Prepare expression matrix with probeid column
 expr_all2 <- expr_all |>
   as.data.frame() |>
-  tibble::rownames_to_column("probeid")    # <-- uses SAME NAME as annotation
+  tibble::rownames_to_column("probeid")    # <- uses SAME NAME as annotation
 
 # 5. Join directly (no rename needed)
 expr_annotated <- dplyr::left_join(
@@ -177,7 +177,6 @@ expr_annotated <- dplyr::left_join(
   expr_all2,
   by = "probeid"
 )
-
 
 ```
 
@@ -200,7 +199,7 @@ write_csv(expr_annotated, "_processed/expression_annotated.csv")
 ## 8. Filter Uninformative Genes
 
 ```{r}
-# a. Remove Affymetrix control probes (start with "AFFX") ---------------
+# a. Remove Affymetrix control probes (start with "AFFX")
 # These are technical control probes and do not represent real genes.
 expr_filtered <- expr_annotated |>
   filter(!grepl("^AFFX", probeid))
@@ -269,6 +268,37 @@ meta <- sample_metadata
 # Keep only columns that contain expression values
 expr_only <- expr |> 
   dplyr::select(starts_with("GSM"))
+
+# Add averaged replicate values 
+
+# a. Identify gene expression columns (those that are not metadata)
+# We exclude the known metadata columns so everything else is a gene
+metadata_cols <- c("GSM", "title", "condition", "tissue", "timepoint", "replicate")
+gene_cols <- setdiff(names(expr_with_meta), metadata_cols)
+
+# b. Define grouping columns (condition, tissue, timepoint)
+group_cols <- c("condition", "tissue", "timepoint")
+
+# c. Compute the average expression per gene for each group
+avg_values <- aggregate(
+  expr_with_meta[ , gene_cols, drop = FALSE],
+  by = expr_with_meta[ , group_cols, drop = FALSE],
+  FUN = function(x) mean(x, na.rm = TRUE)
+)
+
+# d. Rename the averaged columns to something like avg_AT1G01010
+old_gene_names <- names(avg_values)[ -(1:length(group_cols)) ]
+names(avg_values)[ -(1:length(group_cols)) ] <- paste0("avg_", old_gene_names)
+
+# e. Merge averages back into the main dataset
+expr_with_meta <- merge(
+  expr_with_meta,
+  avg_values,
+  by = group_cols,
+  all.x = TRUE
+)
+
+
 
 # Gene symbols often appear multiple times (duplicate probes)
 # -> make.unique() ensures safe, valid, unique names 
