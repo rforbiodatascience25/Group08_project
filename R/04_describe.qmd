@@ -1,16 +1,98 @@
 ---
-title: "Group08 - 04_describe"
+title: "04_describe"
 author: "Eleni"
-format: html
+format:
+  html:
+    output-dir: results
 editor: visual
 ---
 
-## Load packages
-
-```{r}   library("tidyverse")}
-```
-
-## Load data
+## 0. Load packages
 
 ```{r}
+library(tidyverse)
+library(janitor)
+```
+
+## 1. Load final dataset
+
+```{r}
+# Load the final enriched dataset containing:
+# - raw log2-normalized expression per sample
+# - metadata (condition, tissue, timepoint, replicate)
+# - averaged expression values for each group
+expr_with_meta <- readr::read_tsv("../_raw/data/expression_with_metadata.tsv")
+```
+
+## 2. Overview of dataset structure
+
+```{r}
+# Look at the overall structure
+glimpse(expr_with_meta)
+
+# Number of samples
+n_samples <- nrow(expr_with_meta)
+
+# Number of genes (raw GSM columns)
+gene_cols <- grep("^GSM", names(expr_with_meta), value = TRUE)
+n_genes <- length(gene_cols)
+
+# Print basic information
+tibble(
+  total_samples = n_samples,
+  total_genes = n_genes
+)
+```
+
+## 3. How many samples per condition?
+
+```{r}
+expr_with_meta |> 
+  count(condition)
+```
+
+## 4. How many samples per tissue?
+
+```{r}
+expr_with_meta |> 
+  count(tissue)
+```
+
+## 5. How many samples at each timepoint?
+
+```{r}
+expr_with_meta |> 
+  count(timepoint)
+```
+
+## 6. Combined table (condition × tissue × timepoint)
+
+```{r}
+expr_with_meta |>
+  count(condition, tissue, timepoint) |>
+  arrange(condition, tissue, timepoint)
+```
+
+## 7. Plot: **Sample Distribution by Condition × Timepoint × Tissue**
+
+```{r}
+plot_describe <- expr_with_meta |>
+  count(condition, tissue, timepoint) |>
+  ggplot(aes(x = timepoint, y = n, fill = condition)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~ tissue) +
+  labs(
+    title = "Sample Distribution by Condition, Timepoint, and Tissue",
+    x = "Timepoint",
+    y = "Number of Samples",
+    fill = "Condition"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+ggsave("../results/04_key_plot_1.png", plot_describe, width = 8, height = 5, dpi = 300)
+
 ```
