@@ -63,7 +63,6 @@ expr_with_meta |>
 
 ```
 
-
 ## 7. Plot: **Sample Distribution by Condition × Timepoint × Tissue**
 
 ```{r}
@@ -105,6 +104,7 @@ expr_with_meta <- expr_with_meta |>
 ```
 
 ## 7. Plot expression for one example gene: (AT)SRC2
+
 ```{r}
 # Filter and prepare data
 plot1_data <- expr_with_meta |>
@@ -127,6 +127,7 @@ plot1
 ```
 
 ## B. Compare expression between conditions (within tissues)
+
 ```{r}
 plot2 <- ggplot(plot1_data,
                 aes(x = timepoint, y = average, color = condition)) +
@@ -140,14 +141,15 @@ plot2
 ```
 
 ## 8. What is known about (AT)SRC2?
+
 ```{r}
 expr_annotated |>
   select(genename, symbol) |>
   filter(symbol == "(AT)SRC2")
 ```
 
+## 9. Plot five random genes
 
-## 9. Plot five random genes 
 ```{r}
 set.seed(123) # reproducible
 five_genes <- sample(unique(expr_with_meta$gene), 5)
