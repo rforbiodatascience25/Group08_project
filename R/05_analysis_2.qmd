@@ -112,14 +112,15 @@ ggplot(heatmap_data1, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
 ## Plotting heat map (Cold + Shoots)
 
 ```{r}
-heatmap_data2 <- filtered_heat_log2fc |>
+
+heatmap_data3 <- filtered_heat_log2fc |>
   filter(condition == "cold", tissue == "Shoots") |>
   mutate(
     gene = factor(gene, levels = unique(gene)),
     `timepoint [h]` = factor(`timepoint [h]`)  
   )
 
-p1 <- ggplot(heatmap_data2, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
+ggplot(heatmap_data3, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
   geom_tile() +
   scale_fill_gradient2(
     low = "cyan",
@@ -134,10 +135,14 @@ p1 <- ggplot(heatmap_data2, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
     plot.title = element_text(hjust = 0.2, face = "bold"),
     axis.title.x = element_text(vjust = -0.5)
   ) +
-  labs(title = "Shoot gene expression over time (cold conditions)",
-       x = "Timepoint [h]", 
-       y = "Genes", 
-       fill = "Log2 Fold Change")
+  labs(
+    title = "Root gene expression over time (control conditions)",
+    x = "Timepoint [h]",
+    y = "Genes", 
+    fill = "Log2 Fold Change"
+  )
+
+p  
 ```
 
 ## Plotting heat map (Control + Roots)
