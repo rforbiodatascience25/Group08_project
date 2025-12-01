@@ -2,7 +2,9 @@
 title: "Group08 - 05_analysis_1"
 subtitle: "Heat map plot"
 author: "Vakare"
-format: revealjs
+format:
+    html:
+      output-dir: results
 editor: visual
 ---
 
@@ -142,7 +144,6 @@ ggplot(heatmap_data3, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
     fill = "Log2 Fold Change"
   )
 
-p  
 ```
 
 ## Plotting heat map (Control + Roots)
