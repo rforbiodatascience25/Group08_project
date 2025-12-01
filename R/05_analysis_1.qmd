@@ -117,7 +117,7 @@ heatmap_data2 <- filtered_heat_log2fc |>
     `timepoint [h]` = factor(`timepoint [h]`)  
   )
 
-ggplot(heatmap_data2, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
+p1 <- ggplot(heatmap_data2, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
   geom_tile() +
   scale_fill_gradient2(
     low = "cyan",
