@@ -1,19 +1,168 @@
 ---
-title: "Group08 - 05_analysis_3"
-subtitle: "PCA plot"
-author: "Greta"
-format: html
-editor: visual
+--- title: "Group08 - 05_analysis_2" subtitle: "Volcano plot" author: "Julija" format: html editor: visual ---
 ---
 
 ## Load packages
 
+<<<<<<< HEAD
 ```{r}
 library("tidyverse")
+library("broom")
+=======
+```{r} library(tidyverse) library(ggplot2) library(ggrepel)}
+>>>>>>> origin/main
 ```
 
 ## Load data
 
+<<<<<<< HEAD
 ```{r}
-Trying 
+clean_data <- read_csv("../R/_processed/expression_with_metadata.csv")
+clean_data
+```
+
+## **Create a PCA object**
+
+First, we run PCA and store the result in a variable called `pca_data`. To use the `prcomp()` function, we need to remove all non-numeric columns from the data. We can do this with the `where(is.numeric)`.
+
+Second, we standardize the numeric variables (gene expression values) before performing PCA to make their scales comparable. We do this by setting the argument `scale = TRUE` inside `prcomp()`.
+
+```{r}
+pca_fit <- clean_data |> 
+  select_if(is.numeric) |> # retain only numeric columns as prcomp() can only work on numeric data
+  prcomp(scale = TRUE) # do PCA on scaled data (which has zero mean and unit variance for every variable i.e. every variable contributes equally to the PCA) 
+```
+
+**Plotting the data in PC coordinates.** To do this, we combine the PCA results (the PC coordinates) with the original dataset. This allows us to group the samples by categorical variables that were removed before performing PCA. We can do this using the `augment()` function from **broom**. The new columns containing the PCA coordinates are named `.fittedPC1`, `.fittedPC2`, and so on.
+
+```{r}
+pca_fit |>
+  augment(clean_data) |> 
+  mutate(
+    condition_tissue = paste(condition, tissue, sep = "-"),
+    time_num = as.numeric(sub("h", "", timepoint)),
+    # converts "0h" → "0", get numeric values for better visualization
+    timepoint = factor(
+      time_num,
+      levels = sort(unique(time_num)) # convert to ordered factor
+    )
+  ) |>
+  ggplot(aes(.fittedPC1, .fittedPC2, color = timepoint, shape = condition_tissue)) +
+  geom_point(size = 2) +
+  labs(title = "PC coordinates plot", 
+       subtitle = "PCA of gene expression across \nTissue, Condition, and Timepoint", 
+         x = "Fitted PC1", y = "Fitted PC2", 
+         color = "Timepoint") +
+  theme_half_open(12) + background_grid()
+
+```
+
+**Very strong separation by tissue** along PC1 and **strong separation by condition + timepoint** along PC2.
+
+The largest source of gene expression variation is tissue type.
+
+**PC2 reflects the cold response trajectory over time.** Early cold response is closer to control. Later timepoints diverge strongly in gene expression.
+
+## **Create a rotation matrix**
+
+Next, we’ll plot the **rotation matrix**, which shows how the original variables relate to the PCs.
+
+The rotation matrix is stored in `pca_fit$rotation`.
+
+To make it easier to work with, we can use the **`tidy()` function** from the `broom` package. For `prcomp` objects, `tidy()` needs an extra argument: `matrix = "rotation"`. This tells `tidy()` to extract the **rotation matrix** specifically.
+
+```{r}
+# extract rotation matrix
+pca_wide <- pca_fit |>
+  tidy(matrix = "rotation") |>
+  pivot_wider(names_from = PC, values_from = value)
+
+```
+
+```{r}
+# Turning data into wide data
+pca_wide <- pca_fit |>
+  pivot_wider(names_from = PC, values_from = value)
+
+#To reduce the noice, top 30% most variable genes are choosen in order to balance signal vs noise.
+
+
+# define arrow style for plotting
+arrow_style <- arrow(
+  angle = 20, ends = "first", type = "closed", length = grid::unit(8, "pt")
+)
+```
+
+```{r}
+# plot rotation matrix
+pca_fit |>
+  tidy(matrix = "rotation") |>
+  pivot_wider(names_from = "PC", names_prefix = "PC", values_from = "value") |>
+  ggplot(aes(PC1, PC2)) +
+  geom_segment(xend = 0, yend = 0, arrow = arrow_style) +
+  geom_text(
+    aes(label = column),
+    hjust = 1, nudge_x = -0.02, 
+    color = "#904C2F"
+  ) +
+  xlim(-1.25, .5) + ylim(-.5, 1) +
+  coord_fixed() + # fix aspect ratio to 1:1
+  theme_minimal()
+
+```
+
+## Look at the variance explained by each PC
+
+Finally, we’ll plot the variance explained by each PC. We can again extract this information using the `tidy()` function from broom, now by setting the `matrix` argument to `matrix = "eigenvalues"`.
+
+```{r}
+pca_data |>
+  tidy(matrix = "eigenvalues")
+```
+
+```{r}
+pca_data |>
+  tidy(matrix = "eigenvalues") |>
+  ggplot(aes(PC, percent)) +
+  geom_col(fill = "#56B4E9", alpha = 0.8) +
+  scale_x_continuous(breaks = 1:9) +
+  scale_y_continuous(
+    labels = scales::percent_format(),
+    expand = expansion(mult = c(0, 0.01))
+  ) +
+  theme_minimal()
+=======
+```{r} expr_with_meta <- read_csv("../_raw/data/expression_with_metadata.tsv")}
+```
+
+```{r} # reorganising data from wide into long data to have genes and their expression in columns gene_columns <- setdiff(colnames(expr_with_meta), c("GSM", "title", "condition", "tissue", "timepoint", "replicate"))  long_data <- expr_with_meta |>     pivot_longer(cols = all_of(gene_columns),                 names_to = "gene",                 values_to = "expression")  View(expr_with_meta)}
+```
+
+## Selecting for shoots and roots
+
+```{r} # filtering the data by tissue to prepare for differential expression  shoots <- long_data |> filter(tissue == "Shoots") roots <- long_data |> filter(tissue == "Roots")}
+```
+
+## Differential expression
+
+```{r} # computing differential gene expression in tissue, taking into account conditions  comp_de <- function(dat) {   dat |> group_by(gene) |>      summarise(log2FC = log2(mean(expression[condition == "cold"]) / (expression[condition == "control"])),      pvalue = t.test(expression ~ condition)$p.value) |>     mutate(neglog10p = -log10(pvalue))}   shoots_de <- comp_de(shoots) roots_de <- comp_de(roots)}
+```
+
+## Volcano plot for gene expression in shoots
+
+```{r} ggplot(data = shoots_de, aes(x = log2FC, y = neglog10p)) +   geom_vline(xintercept = c(-1, 1), col = "gray", linetype = "dashed") +   geom_hline(yintercept = -log10(0.05), col = "gray", linetype = "dashed") +    geom_point(alpha = 0.7) +   labs(     title = "Volcano plot - gene expression in shoots in control vs cold",     x = expression("log"[2]*" fold change"), y = expression("-log"[10]*"p-value")   )}
+```
+
+There is too many data points, so the plot is not optimal. To adjust that, the expression will be marked as up/down-regulated or not-significant.
+
+```{r} res <- shoots_de |>    mutate(     sig = case_when(       pvalue < 0.05 & log2FC > 1  ~ "Upregulated",       pvalue < 0.05 & log2FC < -1 ~ "Downregulated",       TRUE ~ "Not significant"     ) )}
+```
+
+To
+
+```{r} #  gene_means <- long_data |>     group_by(gene) |>    summarise(mean_expr = mean(expression))  res_clean <- res |>    left_join(gene_means, by="gene") |>    filter(mean_expr > 1)   res$neglog10p_capped <- pmin(res$neglog10p, 10)  ggplot(res_clean, aes(log2FC, neglog10p_capped)) +   geom_point(aes(color = sig),              alpha = ifelse(res_clean$sig == "Not significant", 0.15, 0.8),              size = ifelse(res_clean$sig == "Not significant", 0.5, 1.5)) +   scale_color_manual(values = c(     "Upregulated"="#A30000",     "Downregulated"="#0000A3",     "Not significant"="gray"   )) +   geom_vline(xintercept = c(-1, 1), col = "gray", linetype = "dashed") +   scale_x_continuous(breaks = seq(-3, 5, 1)) +   theme_light() +   theme(     legend.position = "bottom"   ) +   ggtitle("Volcano plot - gene expression in shoots in control vs cold") +   labs(color = "Expression rate", x = expression("log"[2]*" fold change"), y = expression("-log"[10]*"p-value"))}
+```
+
+```{r} View(res_clean)}
+>>>>>>> origin/main
 ```
