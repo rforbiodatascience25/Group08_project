@@ -10,7 +10,7 @@
 <link href="presentation_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.5.57">
 
-  <meta name="author" content="ATGenExpress Affymetrix Microarray Analysis">
+  <meta name="dcterms.date" content="2025-01-12">
   <title>Cold Stress Response in Arabidopsis thaliana</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -392,19 +392,16 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">Cold Stress Response in <em>Arabidopsis thaliana</em></h1>
+  <p class="subtitle">ATGenExpress Affymetrix Microarray Analysis</p>
 
 <div class="quarto-title-authors">
-<div class="quarto-title-author">
-<div class="quarto-title-author-name">
-ATGenExpress Affymetrix Microarray Analysis 
-</div>
-</div>
 </div>
 
+  <p class="date">2025-01-12</p>
 </section>
 <section id="project-overview" class="slide level2">
 <h2>Project Overview</h2>
-<div style="font-size:0.65em;">
+<div style="font-size:0.85em;">
 <div>
 <ul>
 <li>01_load - <em>Import raw GEO series matrix files</em></li>
@@ -422,7 +419,8 @@ ATGenExpress Affymetrix Microarray Analysis
 <li>05_analysis_4 - <em>Linear model using broom</em></li>
 </ul>
 </div>
-<hr>
+</div>
+</section>
 <section id="background---arabidopsis-thaliana" class="slide level2">
 <h2>Background - <em>Arabidopsis thaliana</em></h2>
 <div class="columns">
@@ -445,9 +443,9 @@ ATGenExpress Affymetrix Microarray Analysis
 </ul>
 </div>
 </div><div class="column" style="width:40%;">
-<p><img data-src="https://www.oxinst.com/learning/uploads/inline-images/a-thaliana-fig01-20190307164222.jpg" style="width:70.0%"></p>
+<p><img data-src="https://www.oxinst.com/learning/uploads/inline-images/a-thaliana-fig01-20190307164222.jpg" style="width:70.0%"> <em>Our aim:</em></p>
+<p>To study the relationship between the composition of the gut microbiota and factors such as diet and colonisation history.</p>
 </div></div>
-<hr>
 </section>
 <section id="step-01---load" class="slide level2">
 <h2>Step 01 - Load</h2>
@@ -459,7 +457,9 @@ ATGenExpress Affymetrix Microarray Analysis
 </div><div class="column">
 <p>Read files line-by-line because they contain metadata and expression mixed together.</p>
 </div></div>
-<hr>
+</section>
+<section class="slide level2">
+
 <h3 id="extract-metadata-titles-gsm-ids">2. Extract metadata (titles + GSM IDs)</h3>
 <div class="columns">
 <div class="column">
@@ -478,7 +478,9 @@ ATGenExpress Affymetrix Microarray Analysis
 </div><div class="column">
 <p>Extract sample titles and GSM IDs from metadata lines.</p>
 </div></div>
-<hr>
+</section>
+<section class="slide level2">
+
 <h3 id="parse-metadata-into-structured-variables">3. Parse metadata into structured variables</h3>
 <div class="columns">
 <div class="column">
@@ -493,7 +495,9 @@ ATGenExpress Affymetrix Microarray Analysis
 </div><div class="column">
 <p>Extract tissue, timepoint, and replicate from sample titles.</p>
 </div></div>
-<hr>
+</section>
+<section class="slide level2">
+
 <h3 id="load-numeric-expression-matrix">4. Load numeric expression matrix</h3>
 <div class="columns">
 <div class="column">
@@ -504,7 +508,9 @@ ATGenExpress Affymetrix Microarray Analysis
 </div><div class="column">
 <p>Skip metadata with comment.char = “!” and load numeric matrix only.</p>
 </div></div>
-<hr>
+</section>
+<section class="slide level2">
+
 <h3 id="annotate-probe-ids-gene-symbols">5. Annotate probe IDs → gene symbols</h3>
 <div class="columns">
 <div class="column">
@@ -523,42 +529,37 @@ ATGenExpress Affymetrix Microarray Analysis
 </div><div class="column">
 <p>Match probe IDs with gene symbols and gene names from ATH1 annotation.</p>
 </div></div>
-<hr>
 </section>
 <section id="step-02---clean" class="slide level2">
 <h2>Step 02 - Clean</h2>
 <p>(placeholder slide)</p>
-<hr>
 </section>
 <section id="step-03---augment" class="slide level2">
 <h2>Step 03 - Augment</h2>
 <p>(placeholder slide)</p>
-<hr>
 </section>
 <section id="step-04---describe" class="slide level2">
 <h2>Step 04 - Describe</h2>
 <p>(placeholder slide for your summary + plot)</p>
-<hr>
 </section>
 <section id="step-05---heatmap" class="slide level2">
 <h2>Step 05 - Heatmap</h2>
 <p>(placeholder slide)</p>
-<hr>
 </section>
 <section id="step-05---volcano-plot" class="slide level2">
 <h2>Step 05 - Volcano Plot</h2>
 <p>(placeholder slide)</p>
-<hr>
 </section>
 <section id="step-05---pca-plot" class="slide level2">
 <h2>Step 05 - PCA Plot</h2>
 <p>(placeholder slide)</p>
-<hr>
 </section>
 <section id="step-05---linear-model-broom" class="slide level2">
 <h2>Step 05 - Linear Model (broom)</h2>
 <p>(placeholder slide)</p>
-<hr>
+</section>
+<section class="slide level2">
+
 </section>
 <section id="thank-you" class="title-slide slide level1 center" data-footer="false">
 <h1>Thank you!</h1>
@@ -566,9 +567,6 @@ ATGenExpress Affymetrix Microarray Analysis
 <div class="footer footer-default">
 <p>22160 - R for Bio Data Science</p>
 </div>
-</div>
-</section>
-
 </div>
 </section>
     </div>
@@ -622,7 +620,7 @@ ATGenExpress Affymetrix Microarray Analysis
         progress: true,
 
         // Display the page number of the current slide
-        slideNumber: false,
+        slideNumber: 'c/t',
 
         // 'all', 'print', or 'speaker'
         showSlideNumber: 'all',

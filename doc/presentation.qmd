@@ -1,16 +1,18 @@
 ---
 title: "Cold Stress Response in *Arabidopsis thaliana*"
-author: "ATGenExpress Affymetrix Microarray Analysis"
+subtitle: "ATGenExpress Affymetrix Microarray Analysis"
+date: "01-12-2025"
 format:
   revealjs: 
     theme: serif
-    footer: "22160 - R for Bio Data Science"
+    footer: 22160 - R for Bio Data Science
     incremental: true
+    slideNumber: true
 ---
 
 ## Project Overview
 
-<div style="font-size:0.65em;">
+<div style="font-size:0.85em;">
 
 ::: {.nonincremental}
 - 01_load - *Import raw GEO series matrix files* 
@@ -22,7 +24,7 @@ format:
 - 05_analysis_3 - *PCA plot*
 - 05_analysis_4 - *Linear model using broom*
 :::
-
+</div>
 ---
 
 ## Background - *Arabidopsis thaliana*
@@ -50,6 +52,9 @@ Dataset summary
 
 
 ![](https://www.oxinst.com/learning/uploads/inline-images/a-thaliana-fig01-20190307164222.jpg){width="70%"}
+*Our aim:*
+
+To study the relationship between the composition of the gut microbiota and factors such as diet and colonisation history.
 
 
 :::
