@@ -221,6 +221,20 @@ annotated_sig_results <- raw_data |>
 readr::write_tsv(annotated_sig_results, "../_raw/data/05_analysis_1_results.tsv")
 ```
 
+```{r}
+wide_annotated_sig <- annotated_sig_results |>
+  mutate(
+    term_clean = stringr::str_replace_all(term, "[:(), ]", "_")
+  ) |>
+  pivot_wider(
+    id_cols = c(gene, time, condition, tissue), 
+    names_from = term_clean,
+    values_from = c(estimate, q.value, p.value, is_significant),
+    names_glue = "{.value}_{term_clean}"
+  )
+
+```
+
 # Forest plot
 
 ## Plot allllll the genes
