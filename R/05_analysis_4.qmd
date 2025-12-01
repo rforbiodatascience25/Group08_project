@@ -16,7 +16,7 @@ library("broom")
 ## Load data
 
 ```{r}
-clean_data <- read_csv("../R/_processed/expression_with_metadata.csv")
+clean_data <- read_tsv("../_raw/data/05_analysis_1_results.tsv")
 clean_data
 ```
 
