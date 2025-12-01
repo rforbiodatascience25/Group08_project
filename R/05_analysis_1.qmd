@@ -15,4 +15,179 @@ library("tidyverse")
 ## Load data
 
 ```{r}
+heat_data <- read_tsv("../_raw/data/expression_with_metadata.tsv")
+
+heat_data
+```
+
+# Filter and clean up relevant data
+
+```{r}
+filtered_heat_data <- heat_data |>
+  filter(replicate == "Rep1") |>
+  dplyr::select(gene, timepoint, condition, tissue, average) |>
+  dplyr::rename(`timepoint [h]` = timepoint) |>                
+  mutate(
+    `timepoint [h]` = as.numeric(gsub("h", "", `timepoint [h]`))
+    )
+
+filtered_heat_data
+```
+
+## Calculate average expression per tissue and gene in control samples at 0h (Control baseline)
+
+```{r}
+control_means <- filtered_heat_data |>
+  filter(condition == "control", `timepoint [h]` == 0) |>
+  group_by(tissue, gene) |>  
+  summarize(baseline_0h = mean(average, na.rm = TRUE), .groups = "drop")
+
+control_means
+```
+
+## Calculating log2 fold change
+
+per sample relative to mean of control in the same tissue.
+
+If your expression data is already log2-transformed, then you don’t take the ratio and log2 again. Instead, the log2 fold change is just the difference between the sample and the mean of the control for that tissue:
+
+```{r}
+#calculate log2 fold change
+heat_log2fc <- filtered_heat_data |>
+  left_join(control_means, by = c("tissue", "gene")) |>
+  mutate(log2FC = average - baseline_0h)
+
+
+#Pick top 50 unique genes with the highest absolute log2 fold change values
+top50_genes <- heat_log2fc |>
+  mutate(abs_log2FC = abs(log2FC)) |> 
+  group_by(gene) |>     
+  slice_max(order_by = abs_log2FC, n = 1) |>   
+  ungroup() |>
+  arrange(desc(abs_log2FC)) |>                  
+  slice_head(n = 50)                            
+
+#Filter out irrelevant genes
+filtered_heat_log2fc <- heat_log2fc |>
+  filter(gene %in% top50_genes$gene, `timepoint [h]` != 0)
+```
+
+## Plotting heat map (Controls + Shoots)
+
+```{r}
+heatmap_data1 <- filtered_heat_log2fc |>
+  filter(condition == "control", tissue == "Shoots") |>
+  mutate(
+    gene = factor(gene, levels = unique(gene)),
+    `timepoint [h]` = factor(`timepoint [h]`)  
+  )
+
+ggplot(heatmap_data1, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
+  geom_tile() +
+  scale_fill_gradient2(
+    low = "cyan",
+    mid = "black",
+    high = "deeppink",
+    midpoint = 0,
+    limits = fc_limits  # same log2 scale
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(vjust = 0.5),
+    axis.text.y = element_text(size = 5.5)
+  ) +
+  labs(x = "timepoint [h]",
+       y = "Genes",
+       fill = "Log2 Fold Change")
+```
+
+## Plotting heat map (Cold + Shoots)
+
+```{r}
+
+fc_limits <- range(filtered_heat_log2fc$log2FC)
+
+heatmap_data2 <- filtered_heat_log2fc |>
+  filter(condition == "cold", tissue == "Shoots") |>
+  mutate(
+    gene = factor(gene, levels = unique(gene)),
+    `timepoint [h]` = factor(`timepoint [h]`)  
+  )
+
+ggplot(heatmap_data2, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
+  geom_tile() +
+  scale_fill_gradient2(
+    low = "cyan",
+    mid = "black",
+    high = "deeppink",
+    midpoint = 0,
+    limits = fc_limits  # same log2 scale
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(vjust = 0.5),
+    axis.text.y = element_text(size = 5.5)
+  ) +
+  labs(title = "Shoot gene expression over time (cold conditions)",
+       x = "timepoint [h]", 
+       y = "Genes", 
+       fill = "Log2 Fold Change")
+```
+
+## Plotting heat map (Control + Roots)
+
+```{r}
+heatmap_data3 <- filtered_heat_log2fc |>
+  filter(condition == "control", tissue == "Roots") |>
+  mutate(
+    gene = factor(gene, levels = unique(gene)),
+    `timepoint [h]` = factor(`timepoint [h]`)  
+  )
+
+ggplot(heatmap_data3, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
+  geom_tile() +
+  scale_fill_gradient2(
+    low = "cyan",
+    mid = "black",
+    high = "deeppink",
+    midpoint = 0,
+    limits = fc_limits  # same log2 scale
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(vjust = 0.5),
+    axis.text.y = element_text(size = 5.5),
+  ) +
+  labs(x = "timepoint [h]",
+       y = "Genes", 
+       fill = "Log2 Fold Change")
+```
+
+## Plotting heat map (Cold + Roots)
+
+```{r}
+heatmap_data4 <- filtered_heat_log2fc |>
+  filter(condition == "cold", tissue == "Roots") |>
+  mutate(
+    gene = factor(gene, levels = unique(gene)),
+    `timepoint [h]` = factor(`timepoint [h]`)  
+  )
+
+ggplot(heatmap_data4, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
+  geom_tile() +
+  scale_fill_gradient2(
+    low = "cyan",
+    mid = "black",
+    high = "deeppink",
+    midpoint = 0,
+    limits = fc_limits  # same log2 scale
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(vjust = 0.5),
+    axis.text.y = element_text(size = 5.5),
+  ) +
+  labs(x = "timepoint [h]",
+       y = "Genes",
+       fill = "Log2 Fold Change")
 ```
