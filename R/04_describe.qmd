@@ -10,15 +10,15 @@ editor: visual
 ## 0. Load packages
 
 ```{r}
-library(tidyverse)
-library(janitor)
+library("tidyverse")
+library("janitor")
 ```
 
 ## 1. Load final dataset
 
 ```{r}
 # Final enriched dataset created in previous steps
-expr_with_meta <- readr::read_tsv("../_raw/data/expression_with_metadata.tsv")
+expr_with_meta <- readr::read_tsv("../_raw/data/03_dat_aug.tsv")
 
 # Annotated table (used later for gene lookup)
 expr_annotated <- readr::read_tsv("../_raw/data/expression_annotated.tsv")
@@ -63,11 +63,10 @@ expr_with_meta |>
 
 ```
 
-
 ## 7. Plot: **Sample Distribution by Condition × Timepoint × Tissue**
 
 ```{r}
-plot_describe <- expr_with_meta |>
+plot_1 <- expr_with_meta |>
   count(condition, tissue, timepoint) |>
   ggplot(aes(x = timepoint, y = n, fill = condition)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -84,9 +83,9 @@ plot_describe <- expr_with_meta |>
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
 
-ggsave("../results/04_key_plot_1.png", plot_describe, width = 8, height = 5, dpi = 300)
+ggsave("../results/04_key_plot_1.png", plot_1, width = 8, height = 5, dpi = 300)
 
-plot_describe
+plot_1
 ```
 
 ## 6. Prepare factors for plotting
@@ -105,9 +104,10 @@ expr_with_meta <- expr_with_meta |>
 ```
 
 ## 7. Plot expression for one example gene: (AT)SRC2
+
 ```{r}
 # Filter and prepare data
-plot1_data <- expr_with_meta |>
+plot2_data <- expr_with_meta |>
   filter(gene == "(AT)SRC2") |>
   distinct(average, .keep_all = TRUE)
 ```
@@ -115,54 +115,60 @@ plot1_data <- expr_with_meta |>
 ## A. Compare expression between tissues (within conditions)
 
 ```{r}
-plot1 <- ggplot(plot1_data,
+plot2 <- ggplot(plot2_data,
                 aes(x = timepoint, y = average, color = tissue)) +
   geom_point() +
   facet_wrap(~condition) +
   ggtitle("Average log10 expression of (AT)SRC2 between tissues and conditions") +
   ylab("Log10 expression")
 
-plot1
+plot2
+
+ggsave("../results/04_key_plot_2.png", plot1, width = 8, height = 5, dpi = 300)
 
 ```
 
 ## B. Compare expression between conditions (within tissues)
+
 ```{r}
-plot2 <- ggplot(plot1_data,
+plot3 <- ggplot(plot2_data,
                 aes(x = timepoint, y = average, color = condition)) +
   geom_point() +
   facet_wrap(~tissue) +
   ggtitle("Average log10 expression of (AT)SRC2 within tissues across conditions") +
   ylab("Log10 expression")
 
-plot2
+plot3
+
+ggsave("../results/04_key_plot_3.png", plot3, width = 8, height = 5, dpi = 300)
 
 ```
 
 ## 8. What is known about (AT)SRC2?
+
 ```{r}
 expr_annotated |>
   select(genename, symbol) |>
   filter(symbol == "(AT)SRC2")
 ```
 
+## 9. Plot five random genes
 
-## 9. Plot five random genes 
 ```{r}
-set.seed(123) # reproducible
 five_genes <- sample(unique(expr_with_meta$gene), 5)
 
-data_plot3 <- expr_with_meta |> filter(gene %in% five_genes)
+data_plot4 <- expr_with_meta |> filter(gene %in% five_genes)
 
 ```
 
 ```{r}
-plot3 <- ggplot(data_plot3,
+plot4 <- ggplot(data_plot4,
                 aes(x = timepoint, y = average, color = gene)) +
   geom_point() +
   facet_wrap(condition ~ tissue) +
   ggtitle("Average log10 expression of five randomly selected genes") +
   ylab("Log10 expression")
 
-plot3
+plot4
+ggsave("../results/04_key_plot_4.png", plot4, width = 8, height = 5, dpi = 300)
 ```
