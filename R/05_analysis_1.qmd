@@ -16,11 +16,16 @@ library("tidyverse")
 
 ```{r}
 heat_data <- read_tsv("../_raw/data/expression_with_metadata.tsv")
+pnq_values <- read_csv("../_raw/data/05_analysis_4_results.csv")
 
 heat_data
 ```
 
 # Filter and clean up relevant data
+
+```{r}
+pnq_values
+```
 
 ```{r}
 filtered_heat_data <- heat_data |>
@@ -47,10 +52,6 @@ control_means
 
 ## Calculating log2 fold change
 
-per sample relative to mean of control in the same tissue.
-
-If your expression data is already log2-transformed, then you don’t take the ratio and log2 again. Instead, the log2 fold change is just the difference between the sample and the mean of the control for that tissue:
-
 ```{r}
 #calculate log2 fold change
 heat_log2fc <- filtered_heat_data |>
@@ -75,6 +76,9 @@ filtered_heat_log2fc <- heat_log2fc |>
 ## Plotting heat map (Controls + Shoots)
 
 ```{r}
+#setting up range for the FC legend
+fc_limits <- range(filtered_heat_log2fc$log2FC)
+
 heatmap_data1 <- filtered_heat_log2fc |>
   filter(condition == "control", tissue == "Shoots") |>
   mutate(
@@ -89,14 +93,16 @@ ggplot(heatmap_data1, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
     mid = "black",
     high = "deeppink",
     midpoint = 0,
-    limits = fc_limits  # same log2 scale
+    limits = fc_limits
   ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(vjust = 0.5),
-    axis.text.y = element_text(size = 5.5)
+    axis.text.y = element_text(size = 5.5),
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    axis.title.x = element_text(vjust = -0.5)
   ) +
-  labs(x = "timepoint [h]",
+  labs(title = "Shoot gene expression over time (control conditions)",
+       x = "Timepoint [h]",
        y = "Genes",
        fill = "Log2 Fold Change")
 ```
@@ -104,9 +110,6 @@ ggplot(heatmap_data1, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
 ## Plotting heat map (Cold + Shoots)
 
 ```{r}
-
-fc_limits <- range(filtered_heat_log2fc$log2FC)
-
 heatmap_data2 <- filtered_heat_log2fc |>
   filter(condition == "cold", tissue == "Shoots") |>
   mutate(
@@ -121,15 +124,16 @@ ggplot(heatmap_data2, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
     mid = "black",
     high = "deeppink",
     midpoint = 0,
-    limits = fc_limits  # same log2 scale
+    limits = fc_limits
   ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(vjust = 0.5),
-    axis.text.y = element_text(size = 5.5)
+    axis.text.y = element_text(size = 5.5),
+    plot.title = element_text(hjust = 0.2, face = "bold"),
+    axis.title.x = element_text(vjust = -0.5)
   ) +
   labs(title = "Shoot gene expression over time (cold conditions)",
-       x = "timepoint [h]", 
+       x = "Timepoint [h]", 
        y = "Genes", 
        fill = "Log2 Fold Change")
 ```
@@ -155,10 +159,12 @@ ggplot(heatmap_data3, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
   ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(vjust = 0.5),
     axis.text.y = element_text(size = 5.5),
+    plot.title = element_text(hjust = 0.2, face = "bold"),
+    axis.title.x = element_text(vjust = -0.5)
   ) +
-  labs(x = "timepoint [h]",
+  labs(title = "Root gene expression over time (control conditions)",
+       x = "Timepoint [h]",
        y = "Genes", 
        fill = "Log2 Fold Change")
 ```
@@ -184,10 +190,12 @@ ggplot(heatmap_data4, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
   ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(vjust = 0.5),
     axis.text.y = element_text(size = 5.5),
+    plot.title = element_text(hjust = 0.2, face = "bold"),
+    axis.title.x = element_text(vjust = -0.5),
   ) +
-  labs(x = "timepoint [h]",
+  labs(title = "Root gene expression over time (cold conditions)",
+       x = "Timepoint [h]",
        y = "Genes",
        fill = "Log2 Fold Change")
 ```
